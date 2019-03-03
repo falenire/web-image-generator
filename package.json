@@ -1,8 +1,12 @@
 {
   "name": "web-image-generator",
+  "author": "Fabian Nino",
   "version": "0.1.0",
   "private": true,
+  "main": "main.js",
   "dependencies": {
+    "gm": "^1.23.1",
+    "is-image": "^2.0.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-scripts": "2.1.5"
@@ -11,7 +15,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "app": "react-scripts build && electron .",
+    "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -21,5 +27,11 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "asar": "^1.0.0",
+    "electron": "^4.0.6",
+    "electron-packager": "^13.1.0"
+  },
+  "homepage": "./"
 }

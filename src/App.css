@@ -19,8 +19,25 @@
   color: white;
 }
 
+.loadingbar {
+  width: 100vw;
+  height: 20px;
+  background: blueviolet;
+}
+
 .App-link {
   color: #61dafb;
+}
+
+.loadingbar-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.5);
 }
 
 @keyframes App-logo-spin {
