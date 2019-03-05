@@ -1,17 +1,27 @@
 import React, { Component } from 'react';
+import uuidv4 from 'uuid/v4'
 import './App.css';
 
 const electron = window.require('electron')
 
 const fs = electron.remote.require('fs')
 const gm = electron.remote.require('gm')//.subClass({imageMagick:true})
-const path = electron.remote.require('path')
 const isImage = electron.remote.require('is-image')
-const ipcRenderer = electron.ipcRenderer
+// const ipcRenderer = electron.ipcRenderer
 
-// exec('convert '.$image.' -trim +repage '.$outputName);
-// exec('convert '.$outputName.' -profile '.$colorSpace.' '.$outputName);
-
+class BrandSizes {
+  constructor(width, height, {top, right, bottom, left}, gravity, rotate) {
+    this.width = width || 0;
+    this.height = height || 0;
+    this.gravity = gravity;
+    this.rotate = rotate;
+    this.paddingTop = top || 0;
+    this.paddingRight = right || 0;
+    this.paddingBottom = bottom || 0;
+    this.paddingLeft = left || 0;
+    return this;
+  }
+}
 
 class App extends Component {
   constructor() {
@@ -21,6 +31,7 @@ class App extends Component {
       progress:null,
     }
     this.selectFolder = this.selectFolder.bind(this)
+    this.brands = React.createRef()
   }
 
   selectFolder(e) {
@@ -28,90 +39,190 @@ class App extends Component {
     const folders = {}
     folders[e.target.name]=e.target.files[0].path
     this.setState(prevState=>{
-      return {folders: {...folders, ...prevState.folders}}
+      return {folders: {...prevState.folders, ...folders}}
     })
   }
 
+  brandSpecs(brand) {
+    let response = [];
+    switch(brand) {
+      case 'gelish':
+        response.push(new BrandSizes (696,662,{top:27,bottom:250}))
+        break;
+      case 'entity':
+        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center'))
+        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
+        break;
+      case 'entity-files':
+        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center', -45))
+        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center', -45))
+        break;
+      case 'entity-swatch':
+        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
+        response.push(new BrandSizes (160,160,{top:0,right:0,bottom:0,left:0}, 'center'))
+        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center'))
+        break;
+      case 'artistic':
+        response.push(new BrandSizes (525,525,{top:40,right:40,bottom:40,left:40}, 'center'))
+        response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'center'))
+        break;
+    }
+    console.log(response)
+    return response;
+  }
+
   processFiles = async () => {
-    const width = 525;
-    const height = 525;
-    const padding = 40;
+    const brand = this.brands.current.value;
+    console.log(this.brands, brand)
+    const brandSpecs = this.brandSpecs(brand)
     this.setState({progress:1})
-    await fs.readdir(this.state.folders.source, (err,items)=>{
-      console.log(items)
-      items = items.filter(item=>isImage(item))
-      let progressCount = 0;
-      const destFolder = `${this.state.folders.destination}/${width}`;
-      fs.mkdirSync(destFolder)
-      items.map(async (file)=>{
-        const fileName = this.state.folders.source+'/'+file
-        const destName = destFolder+'/'+file
-
-        // GET image size
-        const fileSize = await gm(fileName).size((err,value)=>{
-          console.log('err', err); console.log('value', value)
-        })
-        const {fileWidth, fileHeight} = {fileWidth:fileSize.data.size.width, fileHeight:fileSize.data.size.height}
-        console.log(fileWidth, fileHeight)
-
-        // GET image orientation
-
-        let resizeWidth = null;
-        let resizeHeight = null;
-
-        if(fileWidth > fileHeight) { 
-          // Landscape
-          resizeWidth = (width-padding)*2;
-          resizeHeight = null
-        } else { 
-          // Portrait
-          resizeWidth = null;
-          resizeHeight = (height-padding)*2;
-        }
-
-        const large = await gm(fileName)
-          .trim()
-          .profile(`colorProfile/sRGB2014.icc`)
-          .resize(resizeWidth, resizeHeight)
-          .gravity('Center')
-          .extent(width*2, height*2);
-        const small = large;
-        large.write(destName.replace('.jpg', '@2x.jpg').replace('.png', '@2x.png'), (err)=>{
-          if(err) console.log(err)
-          if(!err) {
-            console.log('done @2x')
-          }
-        })
-        small.resize(width, height);
-        small.write(destName, (err)=>{
-          if(err) console.log(err)
-          if(!err) {
-            progressCount++;
-            console.log('done', progressCount, items.length)
-            if(progressCount >= items.length) {
-              this.setState({progress:null})
-            } else {
-              this.setState({progress:(progressCount/items.length)*100})
+    new Promise((resolve, reject)=>{
+      fs.readdir(this.state.folders.source, (err,items)=>{
+        items = items.filter(file=>isImage(this.state.folders.source+'/'+file))
+        console.log(items)
+        let progressCount = 0;
+        let totalCount = items.length * brandSpecs.length + items.length * 2;
+        let tempFiles = [];
+        items.map(async (file)=>{
+          const tempFile = `/tmp/web-image-generator_${uuidv4()}`//'/tmp/'+uuidv4()
+          const fileName = this.state.folders.source+'/'+file
+          
+          tempFiles.push(tempFile)
+          
+          console.log(fileName)
+          // GET image size
+          const fileSize = new Promise((resolve, reject)=>{
+            gm(fileName)
+              .trim()
+              .profile(`colorProfile/sRGB2014.icc`)
+              .write(tempFile, (err=>{
+                if(err) throw new Error(err);
+                progressCount++;
+                console.log('progressCount write tmp: ', progressCount)
+                if(!err) {
+                  gm(tempFile)
+                    .size((err,value)=>{
+                      if(err) throw new Error(err); 
+                      progressCount++;
+                      console.log('progressCount size read: ', progressCount)
+                      resolve(value)
+                    })
+                }
+              }))
+          }) 
+          const sourceSize = await fileSize;
+          console.log('Source Size: ',sourceSize)
+              
+          // Prep File
+          
+          brandSpecs.map(async imageSpecs=>{
+            const response = await this.prepThumbnailFile(file, tempFile, imageSpecs, sourceSize)
+            if(response===true) {
+              progressCount++;
+              console.log('progressCount write thumbnail: ', progressCount)
+              console.log('done', progressCount, totalCount)
+              if(progressCount >= totalCount) {
+                this.setState({progress:null})
+                resolve(tempFiles)
+              } else {
+                this.setState({progress:(progressCount/totalCount)*100})
+              }
             }
-          }
+          })        
+        })
+      })
+    }).then(tempFiles=>{
+      tempFiles.map(tempFile=>{
+        fs.unlink(tempFile, error=>{
+          if(error){throw new Error(error)}
+          console.log(`${tempFile} was deleted.`)
         })
       })
     })
   }
 
+  prepThumbnailFile(file, tempFile, imageSpecs, sourceSize) {
+    return new Promise((resolve, reject)=>{
+      // Start with Brand Specs
+      let {width, height, gravity, rotate, paddingTop, paddingRight, paddingLeft, paddingBottom} = imageSpecs;
+      const destFolder = `${this.state.folders.destination}/${width}`;
+      const destName = destFolder+'/'+file
 
+      // GET image orientation
+      let resizeWidth = null;
+      let resizeHeight = null;
+      if(sourceSize.width > sourceSize.height) { 
+        // Landscape
+        resizeWidth = (width-paddingLeft-paddingRight)*2;
+        resizeHeight = null
+      } else { 
+        // Portrait
+        resizeHeight = (height-paddingTop-paddingBottom)*2;
+        resizeWidth = null;
+      }
+      const gmTempFile = gm(tempFile);
+      gmTempFile.resize(resizeWidth, resizeHeight);
+
+      if(rotate) {
+        gmTempFile.rotate('white', rotate)
+      }
+      
+      if(gravity==='center') {
+        gmTempFile.gravity('Center').extent(width*2,height*2);
+      } else {
+        gmTempFile.gravity('North').extent(width*2, height*2, `-${paddingLeft}-${paddingTop}`);
+      }
+
+      console.log(imageSpecs)
+
+      try {fs.mkdirSync(destFolder)} catch(err) {}
+      gmTempFile.write(destName.replace('.jpg', '@2x.jpg').replace('.png', '@2x.png'), (err)=>{
+        if(err) console.log(err)
+        if(!err) console.log('done @2x: ', destName)
+      })
+      gmTempFile.resize(width, height);
+      gmTempFile.write(destName, (err)=>{
+        if(err) {
+          reject(err)
+          console.log(err);
+        }
+        if(!err) {
+          console.log('done @1x: ', destName)
+          resolve(true)
+        }
+      })
+
+      // resolve(true);
+    })
+  }
+
+  // generateThumbnailImages(file, gmObject, imageSpecs) {
+    
+  //   return new Promise((resolve, reject) => {
+  //   })
+  // }
 
   render() {
     console.log(this.state);
     return (
       <div className="App">
         <header className="App-header">
-          <p>
+          <h1>Web Assets Gen</h1>
+          <div className="form-wrapper">
+            <label htmlFor="brands">Brand</label>
+            <select id="brands" ref={this.brands}>
+              <option value="gelish">Gelish</option>
+              <option value="artistic">Artistic</option>
+              <option value="entity">Entity</option>
+              <option value="entity-swatch">Entity Swatch</option>
+              <option value="entity-files">Entity Files</option>
+            </select>
+            <label htmlFor="source-folder">Source Folder</label>
             <input type="file" name="source" id="source-folder" webkitdirectory="true" directory="true" multiple="multiple" onChange={this.selectFolder} />
-            <input type="file" name="destination" id="source-folder" webkitdirectory="true" directory="true" multiple="multiple" onChange={this.selectFolder} />
+            <label htmlFor="dest-folder">Destination Folder</label>
+            <input type="file" name="destination" id="dest-folder" webkitdirectory="true" directory="true" multiple="multiple" onChange={this.selectFolder} />
             <button onClick={this.processFiles} >Process</button>
-          </p>
-          <h1>Fabian es un duro</h1>
+          </div>
         </header>
         {this.state.progress && 
           loadingBar(this.state.progress)
