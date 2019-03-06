@@ -15,6 +15,7 @@ const showDevTools = (window) => {
   window.webContents.openDevTools();
 }
 
+
 /*
  * Windows
  */
@@ -33,3 +34,5 @@ app.on("ready", () => {
  * Handle closing the application
  */
 app.on("window-all-closed", app.quit)
+
+exports.isPackaged = app.isPackaged;

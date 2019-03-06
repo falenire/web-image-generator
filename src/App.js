@@ -2,12 +2,19 @@ import React, { Component } from 'react';
 import uuidv4 from 'uuid/v4'
 import './App.css';
 
-const electron = window.require('electron')
 
+const electron = window.require('electron')
+const main = electron.remote.require('./main.js')
 const fs = electron.remote.require('fs')
 const gm = electron.remote.require('gm')//.subClass({imageMagick:true})
 const isImage = electron.remote.require('is-image')
 // const ipcRenderer = electron.ipcRenderer
+const rootPath = electron.remote.require('electron-root-path').rootPath;
+const packedPath = main.isPackaged ? '/Contents/Resources/app.asar.unpacked' : ''
+const gpath = `${rootPath}${packedPath}/unpackedDir/graphicsmagick/1.3.31/bin/gm`
+const colorProfilePath = `${rootPath}${packedPath}/unpackedDir/colorProfile/sRGB2014.icc`
+
+console.log('isPacked:' ,main.isPackaged)
 
 class BrandSizes {
   constructor(width, height, {top, right, bottom, left}, gravity, rotate) {
@@ -99,15 +106,15 @@ class App extends Component {
           console.log(fileName)
           // GET image size
           const fileSize = new Promise((resolve, reject)=>{
-            gm(fileName)
+            gm(fileName, gpath)
               .trim()
-              .profile(`colorProfile/sRGB2014.icc`)
+              .profile(colorProfilePath)
               .write(tempFile, (err=>{
                 if(err) throw new Error(err);
                 progressCount++;
                 console.log('progressCount write tmp: ', progressCount)
                 if(!err) {
-                  gm(tempFile)
+                  gm(tempFile, gpath)
                     .size((err,value)=>{
                       if(err) throw new Error(err); 
                       progressCount++;
@@ -167,7 +174,7 @@ class App extends Component {
         resizeHeight = (height-paddingTop-paddingBottom)*2;
         resizeWidth = null;
       }
-      const gmTempFile = gm(tempFile);
+      const gmTempFile = gm(tempFile, gpath);
       gmTempFile.resize(resizeWidth, resizeHeight);
 
       if(this.state.rotationAngle !== 0) {
@@ -183,7 +190,8 @@ class App extends Component {
         if(!resizeHeight) {
           resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
         }
-        const xPos = width*2-(resizeWidth+(paddingRight*2));
+        // const xPos = width*2-(resizeWidth+(paddingRight*2));
+        const xPos = 0;
         const yPos = height*2-(resizeHeight+(paddingBottom*2));
         gmTempFile.gravity('North').extent(width*2, height*2, `-${xPos}-${yPos}`);
       }
