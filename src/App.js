@@ -29,8 +29,10 @@ class App extends Component {
     this.state={
       folders:null,
       progress:null,
+      rotationAngle:0,
     }
     this.selectFolder = this.selectFolder.bind(this)
+    this.updateRotationAngle = this.updateRotationAngle.bind(this)
     this.brands = React.createRef()
   }
 
@@ -41,6 +43,11 @@ class App extends Component {
     this.setState(prevState=>{
       return {folders: {...prevState.folders, ...folders}}
     })
+  }
+
+  updateRotationAngle(e) {
+    console.log(this, e.target.value)
+    this.setState({rotationAngle:e.target.value})
   }
 
   brandSpecs(brand) {
@@ -54,8 +61,8 @@ class App extends Component {
         response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
         break;
       case 'entity-files':
-        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center', -45))
-        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center', -45))
+        response.push(new BrandSizes (108,108,{},'center'))
+        response.push(new BrandSizes (554,554,{}, 'center'))
         break;
       case 'entity-swatch':
         response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
@@ -144,7 +151,7 @@ class App extends Component {
   prepThumbnailFile(file, tempFile, imageSpecs, sourceSize) {
     return new Promise((resolve, reject)=>{
       // Start with Brand Specs
-      let {width, height, gravity, rotate, paddingTop, paddingRight, paddingLeft, paddingBottom} = imageSpecs;
+      let {width, height, gravity, paddingTop, paddingRight, paddingLeft, paddingBottom} = imageSpecs;
       const destFolder = `${this.state.folders.destination}/${width}`;
       const destName = destFolder+'/'+file
 
@@ -163,14 +170,22 @@ class App extends Component {
       const gmTempFile = gm(tempFile);
       gmTempFile.resize(resizeWidth, resizeHeight);
 
-      if(rotate) {
-        gmTempFile.rotate('white', rotate)
+      if(this.state.rotationAngle !== 0) {
+        gmTempFile.rotate('rgba(255,255,255,0) ', (this.state.rotationAngle*-1))
       }
       
       if(gravity==='center') {
         gmTempFile.gravity('Center').extent(width*2,height*2);
       } else {
-        gmTempFile.gravity('North').extent(width*2, height*2, `-${paddingLeft}-${paddingTop}`);
+        if(!resizeWidth) {
+          resizeWidth = (resizeHeight*(sourceSize.width))/(sourceSize.height)
+        }
+        if(!resizeHeight) {
+          resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
+        }
+        const xPos = width*2-(resizeWidth+(paddingRight*2));
+        const yPos = height*2-(resizeHeight+(paddingBottom*2));
+        gmTempFile.gravity('North').extent(width*2, height*2, `-${xPos}-${yPos}`);
       }
 
       console.log(imageSpecs)
@@ -218,9 +233,14 @@ class App extends Component {
               <option value="entity-files">Entity Files</option>
             </select>
             <label htmlFor="source-folder">Source Folder</label>
-            <input type="file" name="source" id="source-folder" webkitdirectory="true" directory="true" multiple="multiple" onChange={this.selectFolder} />
+            <input type="file" name="source" id="source-folder" webkitdirectory="true" directory="true" onChange={this.selectFolder} />
             <label htmlFor="dest-folder">Destination Folder</label>
-            <input type="file" name="destination" id="dest-folder" webkitdirectory="true" directory="true" multiple="multiple" onChange={this.selectFolder} />
+            <input type="file" name="destination" id="dest-folder" webkitdirectory="true" directory="true" onChange={this.selectFolder} />
+            <label htmlFor="rotation-angle">Rotate</label>
+            <div>
+              <input type="text" name="rotation-angle" id="rotation-angle" value={this.state.rotationAngle} onChange={this.updateRotationAngle} /> Degrees
+            </div>
+            <div></div>
             <button onClick={this.processFiles} >Process</button>
           </div>
         </header>

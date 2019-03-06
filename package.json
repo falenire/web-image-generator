@@ -17,7 +17,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "app": "react-scripts build && electron .",
-    "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron ."
+    "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
+    "electron-package": "react-scripts build && electron-packager ./ 'Web Assets Gen' --platform=darwin --arch=x64 --icon=src/images/icons/nailalliance-generic.icns --prune=true --overwrite --out ../builds"
   },
   "eslintConfig": {
     "extends": "react-app"

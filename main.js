@@ -1,5 +1,8 @@
 const electron = require("electron")
-const { app, BrowserWindow, globalShortcut } = electron
+const { app, BrowserWindow, globalShortcut, url } = electron
+// const gm = require('gm')
+
+// exports.gm = gm
 
 let mainWindow;
 const windowSize = {
@@ -21,12 +24,9 @@ app.on("ready", () => {
   })
   console.log(globalShortcut.isRegistered("CommandOrControl+D+T"))
   mainWindow = new BrowserWindow(windowSize)
-  const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, '/build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  })
+  const startUrl = process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl)
+  mainWindow.webContents.openDevTools();
 })
 
 /*
