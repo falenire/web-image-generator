@@ -63,6 +63,9 @@ class App extends Component {
       case 'gelish':
         response.push(new BrandSizes (696,662,{top:27,bottom:250}))
         break;
+      case 'gelish-swatch':
+        response.push(new BrandSizes (192,192,{top:5,right:5,bottom:5,left:5}, 'center'))
+        break;
       case 'rcm':
         response.push(new BrandSizes (500,500,{top:20,right:20,bottom:20,left:20}, 'center'))
         break;
@@ -238,6 +241,7 @@ class App extends Component {
             <label htmlFor="brands">Brand</label>
             <select id="brands" ref={this.brands}>
               <option value="gelish">Gelish</option>
+              <option value="gelish-swatch">Gelish Swatches</option>
               <option value="artistic">Artistic</option>
               <option value="entity">Entity</option>
               <option value="rcm">RCM</option>
