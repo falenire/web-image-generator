@@ -5,7 +5,8 @@
   "private": true,
   "main": "main.js",
   "dependencies": {
-    "gm": "^1.23.1",
+    "electron-root-path": "^1.0.9",
+    "gm": "git+https://github.com/falenire/gm.git",
     "is-image": "^2.0.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
@@ -18,7 +19,7 @@
     "eject": "react-scripts eject",
     "app": "react-scripts build && electron .",
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
-    "electron-package": "react-scripts build && electron-packager ./ 'Web Assets Gen' --platform=darwin --arch=x64 --icon=src/images/icons/nailalliance-generic.icns --prune=true --overwrite --out ../builds"
+    "electron-package": "react-scripts build && electron-packager ./ 'Web Assets Gen' --platform=darwin --arch=x64 --icon=src/images/icons/nailalliance-generic.icns --asar.unpackDir=unpackedDir --unpack graphicsmagick --prune=true --overwrite --out ../builds"
   },
   "eslintConfig": {
     "extends": "react-app"
