@@ -63,6 +63,9 @@ class App extends Component {
       case 'gelish':
         response.push(new BrandSizes (696,662,{top:27,bottom:250}))
         break;
+      case 'rcm':
+        response.push(new BrandSizes (500,500,{top:20,right:20,bottom:20,left:20}, 'center'))
+        break;
       case 'entity':
         response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center'))
         response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
@@ -237,6 +240,7 @@ class App extends Component {
               <option value="gelish">Gelish</option>
               <option value="artistic">Artistic</option>
               <option value="entity">Entity</option>
+              <option value="rcm">RCM</option>
               <option value="entity-swatch">Entity Swatch</option>
               <option value="entity-files">Entity Files</option>
             </select>

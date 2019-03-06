@@ -27,7 +27,7 @@ app.on("ready", () => {
   mainWindow = new BrowserWindow(windowSize)
   const startUrl = process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl)
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 })
 
 /*
