@@ -162,10 +162,10 @@ class App extends Component {
       })
     }).then(tempFiles=>{
       tempFiles.map(tempFile=>{
-        // fs.unlink(tempFile, error=>{
-        //   if(error){throw new Error(error)}
-        //   console.log(`${tempFile} was deleted.`)
-        // })
+        fs.unlink(tempFile, error=>{
+          if(error){throw new Error(error)}
+          console.log(`${tempFile} was deleted.`)
+        })
       })
     })
   }
