@@ -61,24 +61,33 @@ class App extends Component {
     let response = [];
     switch(brand) {
       case 'gelish':
-        response.push(new BrandSizes (696,662,{top:27,bottom:250}))
+        response.push(new BrandSizes (696,662,{top:27,bottom:250}, 'North'))
+        break;
+      case 'gelish-swatch':
+        response.push(new BrandSizes (192,192,{top:5,right:5,bottom:5,left:5}, 'Center'))
+        break;
+      case 'gelish-dip-swatch':
+        response.push(new BrandSizes (192,180,{top:17,right:17,bottom:5,left:17}, 'North'))
+        break;
+      case 'rcm':
+        response.push(new BrandSizes (500,500,{top:20,right:20,bottom:20,left:20}, 'Center'))
         break;
       case 'entity':
-        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center'))
-        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
+        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'Center'))
+        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'Center'))
         break;
       case 'entity-files':
-        response.push(new BrandSizes (108,108,{},'center'))
-        response.push(new BrandSizes (554,554,{}, 'center'))
+        response.push(new BrandSizes (108,108,{},'Center'))
+        response.push(new BrandSizes (554,554,{}, 'Center'))
         break;
       case 'entity-swatch':
-        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'center'))
-        response.push(new BrandSizes (160,160,{top:0,right:0,bottom:0,left:0}, 'center'))
-        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'center'))
+        response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'Center'))
+        response.push(new BrandSizes (160,160,{top:0,right:0,bottom:0,left:0}, 'Center'))
+        response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'Center'))
         break;
       case 'artistic':
-        response.push(new BrandSizes (525,525,{top:40,right:40,bottom:40,left:40}, 'center'))
-        response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'center'))
+        response.push(new BrandSizes (525,525,{top:40,right:40,bottom:40,left:40}, 'Center'))
+        response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'Center'))
         break;
     }
     console.log(response)
@@ -107,22 +116,28 @@ class App extends Component {
           // GET image size
           const fileSize = new Promise((resolve, reject)=>{
             gm(fileName, gpath)
-              .trim()
               .profile(colorProfilePath)
-              .write(tempFile, (err=>{
+              .colorspace('RGB')
+              .shave(1, 1)
+              .write(tempFile, err=>{
                 if(err) throw new Error(err);
-                progressCount++;
-                console.log('progressCount write tmp: ', progressCount)
-                if(!err) {
-                  gm(tempFile, gpath)
-                    .size((err,value)=>{
-                      if(err) throw new Error(err); 
-                      progressCount++;
-                      console.log('progressCount size read: ', progressCount)
-                      resolve(value)
-                    })
-                }
-              }))
+                gm(tempFile, gpath)
+                .trim()
+                .write(tempFile, err=>{
+                  if(err) throw new Error(err);
+                  progressCount++;
+                  console.log('progressCount write tmp: ', progressCount)
+                  if(!err) {
+                    gm(tempFile, gpath)
+                      .size((err,value)=>{
+                        if(err) throw new Error(err); 
+                        progressCount++;
+                        console.log('progressCount size read: ', progressCount)
+                        resolve(value)
+                      })
+                  }
+                })
+              })
           }) 
           const sourceSize = await fileSize;
           console.log('Source Size: ',sourceSize)
@@ -161,40 +176,51 @@ class App extends Component {
       let {width, height, gravity, paddingTop, paddingRight, paddingLeft, paddingBottom} = imageSpecs;
       const destFolder = `${this.state.folders.destination}/${width}`;
       const destName = destFolder+'/'+file
-
+      
+      const constrainHeight = (height-paddingTop-paddingBottom)*2;
+      const constrainWidth = (width-paddingLeft-paddingRight)*2;
+      
       // GET image orientation
       let resizeWidth = null;
       let resizeHeight = null;
-      if(sourceSize.width > sourceSize.height) { 
+      if(constrainWidth > constrainHeight) { 
+      // if(sourceSize.width > sourceSize.height) { 
         // Landscape
-        resizeWidth = (width-paddingLeft-paddingRight)*2;
-        resizeHeight = null
+        resizeHeight = constrainHeight;
+        resizeWidth = null;
       } else { 
         // Portrait
-        resizeHeight = (height-paddingTop-paddingBottom)*2;
-        resizeWidth = null;
+        resizeWidth = constrainWidth;
+        resizeHeight = null
       }
+
       const gmTempFile = gm(tempFile, gpath);
+      gmTempFile.background('white')
       gmTempFile.resize(resizeWidth, resizeHeight);
 
       if(this.state.rotationAngle !== 0) {
         gmTempFile.rotate('rgba(255,255,255,0) ', (this.state.rotationAngle*-1))
       }
       
-      if(gravity==='center') {
-        gmTempFile.gravity('Center').extent(width*2,height*2);
-      } else {
-        if(!resizeWidth) {
-          resizeWidth = (resizeHeight*(sourceSize.width))/(sourceSize.height)
-        }
-        if(!resizeHeight) {
-          resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
-        }
-        // const xPos = width*2-(resizeWidth+(paddingRight*2));
-        const xPos = 0;
-        const yPos = height*2-(resizeHeight+(paddingBottom*2));
-        gmTempFile.gravity('North').extent(width*2, height*2, `-${xPos}-${yPos}`);
+      switch(gravity) {
+        case 'Center':
+          gmTempFile.gravity('Center').extent(width*2,height*2);
+        break;
+        case 'North':
+        case 'South':
+          if(!resizeWidth) {
+            resizeWidth = (resizeHeight*(sourceSize.width))/(sourceSize.height)
+          }
+          if(!resizeHeight) {
+            resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
+          }
+          // const xPos = width*2-(resizeWidth+(paddingRight*2));
+          const xPos = 0;
+          const yPos = height*2-(resizeHeight+(paddingBottom*2));
+          gmTempFile.gravity(gravity).extent(width*2, height*2, `-${xPos}-${yPos}`);
+        break;
       }
+
 
       console.log(imageSpecs)
 
@@ -235,8 +261,11 @@ class App extends Component {
             <label htmlFor="brands">Brand</label>
             <select id="brands" ref={this.brands}>
               <option value="gelish">Gelish</option>
+              <option value="gelish-swatch">Gelish Swatches</option>
+              <option value="gelish-dip-swatch">Gelish Dip Swatches</option>
               <option value="artistic">Artistic</option>
               <option value="entity">Entity</option>
+              <option value="rcm">RCM</option>
               <option value="entity-swatch">Entity Swatch</option>
               <option value="entity-files">Entity Files</option>
             </select>
