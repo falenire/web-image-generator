@@ -90,8 +90,8 @@ class App extends Component {
         response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'Center'))
         break;
       case 'artistic-angels':
-        response.push(new BrandSizes (525,525,{}, 'NorthWest'))
-        response.push(new BrandSizes (259,259,{}, 'NorthWest'))
+        response.push(new BrandSizes (400,400,{}, 'NorthWest'))
+        response.push(new BrandSizes (250,250,{}, 'NorthWest'))
         break;
     }
     console.log(response)
@@ -120,12 +120,13 @@ class App extends Component {
           // GET image size
           const fileSize = new Promise((resolve, reject)=>{
             gm(fileName, gpath)
-              .profile(colorProfilePath)
-              .colorspace('RGB')
+              .noProfile()
               .shave(1, 1)
               .write(tempFile, err=>{
                 if(err) throw new Error(err);
                 gm(tempFile, gpath)
+                .profile(colorProfilePath)
+                .colorspace('RGB')
                 .trim()
                 .write(tempFile, err=>{
                   if(err) throw new Error(err);
@@ -187,7 +188,7 @@ class App extends Component {
       // GET image orientation
       let resizeWidth = null;
       let resizeHeight = null;
-      if(constrainWidth >= constrainHeight) { 
+      if(constrainWidth > constrainHeight) { 
       // if(sourceSize.width > sourceSize.height) { 
         // Landscape
         resizeHeight = constrainHeight;
