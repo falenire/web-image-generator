@@ -188,16 +188,27 @@ class App extends Component {
       // GET image orientation
       let resizeWidth = null;
       let resizeHeight = null;
-      if(constrainWidth > constrainHeight) { 
-      // if(sourceSize.width > sourceSize.height) { 
-        // Landscape
-        resizeHeight = constrainHeight;
-        resizeWidth = null;
-      } else { 
-        // Portrait
-        resizeWidth = constrainWidth;
-        resizeHeight = null
+
+      if(sourceSize.width > constrainWidth) {
+        resizeWidth = constrainWidth
+        resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
       }
+
+      if(resizeHeight > constrainHeight) {
+        resizeHeight = constrainHeight
+        resizeWidth = (resizeHeight*(resizeWidth))/(resizeHeight)
+      }
+
+      // if(constrainWidth > constrainHeight) { 
+      // // if(sourceSize.width > sourceSize.height) { 
+      //   // Landscape
+      //   resizeHeight = constrainHeight
+      //   resizeWidth = (resizeHeight*(sourceSize.width))/(sourceSize.height)
+      // } else { 
+      //   // Portrait
+      //   resizeWidth = constrainWidth
+      //   resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
+      // }
 
       const gmTempFile = gm(tempFile, gpath);
       gmTempFile.background('white')
