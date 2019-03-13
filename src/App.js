@@ -89,6 +89,10 @@ class App extends Component {
         response.push(new BrandSizes (525,525,{top:40,right:40,bottom:40,left:40}, 'Center'))
         response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'Center'))
         break;
+      case 'artistic-angels':
+        response.push(new BrandSizes (400,400,{}, 'NorthWest'))
+        response.push(new BrandSizes (250,250,{}, 'NorthWest'))
+        break;
     }
     console.log(response)
     return response;
@@ -116,12 +120,13 @@ class App extends Component {
           // GET image size
           const fileSize = new Promise((resolve, reject)=>{
             gm(fileName, gpath)
-              .profile(colorProfilePath)
-              .colorspace('RGB')
+              .noProfile()
               .shave(1, 1)
               .write(tempFile, err=>{
                 if(err) throw new Error(err);
                 gm(tempFile, gpath)
+                .profile(colorProfilePath)
+                .colorspace('RGB')
                 .trim()
                 .write(tempFile, err=>{
                   if(err) throw new Error(err);
@@ -183,16 +188,27 @@ class App extends Component {
       // GET image orientation
       let resizeWidth = null;
       let resizeHeight = null;
-      if(constrainWidth > constrainHeight) { 
-      // if(sourceSize.width > sourceSize.height) { 
-        // Landscape
-        resizeHeight = constrainHeight;
-        resizeWidth = null;
-      } else { 
-        // Portrait
-        resizeWidth = constrainWidth;
-        resizeHeight = null
+
+      if(sourceSize.width > constrainWidth) {
+        resizeWidth = constrainWidth
+        resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
       }
+
+      if(resizeHeight > constrainHeight) {
+        resizeHeight = constrainHeight
+        resizeWidth = (resizeHeight*(resizeWidth))/(resizeHeight)
+      }
+
+      // if(constrainWidth > constrainHeight) { 
+      // // if(sourceSize.width > sourceSize.height) { 
+      //   // Landscape
+      //   resizeHeight = constrainHeight
+      //   resizeWidth = (resizeHeight*(sourceSize.width))/(sourceSize.height)
+      // } else { 
+      //   // Portrait
+      //   resizeWidth = constrainWidth
+      //   resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
+      // }
 
       const gmTempFile = gm(tempFile, gpath);
       gmTempFile.background('white')
@@ -205,7 +221,7 @@ class App extends Component {
       switch(gravity) {
         case 'Center':
           gmTempFile.gravity('Center').extent(width*2,height*2);
-        break;
+          break;
         case 'North':
         case 'South':
           if(!resizeWidth) {
@@ -218,7 +234,10 @@ class App extends Component {
           const xPos = 0;
           const yPos = height*2-(resizeHeight+(paddingBottom*2));
           gmTempFile.gravity(gravity).extent(width*2, height*2, `-${xPos}-${yPos}`);
-        break;
+          break;
+        default:
+          gmTempFile.gravity(gravity).extent(width*2,height*2);
+          break;
       }
 
 
@@ -264,6 +283,7 @@ class App extends Component {
               <option value="gelish-swatch">Gelish Swatches</option>
               <option value="gelish-dip-swatch">Gelish Dip Swatches</option>
               <option value="artistic">Artistic</option>
+              <option value="artistic-angels">Artistic Angels</option>
               <option value="entity">Entity</option>
               <option value="rcm">RCM</option>
               <option value="entity-swatch">Entity Swatch</option>
