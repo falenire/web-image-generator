@@ -120,13 +120,13 @@ class App extends Component {
           // GET image size
           const fileSize = new Promise((resolve, reject)=>{
             gm(fileName, gpath)
-              .noProfile()
+              //.noProfile()
+              .profile(colorProfilePath)
+              .colorspace('RGB')
               .shave(1, 1)
               .write(tempFile, err=>{
                 if(err) throw new Error(err);
                 gm(tempFile, gpath)
-                .profile(colorProfilePath)
-                .colorspace('RGB')
                 .trim()
                 .write(tempFile, err=>{
                   if(err) throw new Error(err);
@@ -186,8 +186,8 @@ class App extends Component {
       const constrainWidth = (width-paddingLeft-paddingRight)*2;
       
       // GET image orientation
-      let resizeWidth = null;
-      let resizeHeight = null;
+      let resizeWidth = sourceSize.width;
+      let resizeHeight = sourceSize.height;
 
       if(sourceSize.width > constrainWidth) {
         resizeWidth = constrainWidth
@@ -284,8 +284,8 @@ class App extends Component {
               <option value="gelish-dip-swatch">Gelish Dip Swatches</option>
               <option value="artistic">Artistic</option>
               <option value="artistic-angels">Artistic Angels</option>
-              <option value="entity">Entity</option>
               <option value="rcm">RCM</option>
+              <option value="entity">Entity</option>
               <option value="entity-swatch">Entity Swatch</option>
               <option value="entity-files">Entity Files</option>
             </select>
