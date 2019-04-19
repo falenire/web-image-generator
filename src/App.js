@@ -101,6 +101,12 @@ class App extends Component {
         response.push(new BrandSizes (400,400,{}, 'NorthWest'))
         response.push(new BrandSizes (250,250,{}, 'NorthWest'))
         break;
+      case 'morgan-taylor':
+        response.push(new BrandSizes (138,227,{top:12,right:16,bottom:8,left:16}, 'North'))
+        break;
+      case 'morgan-taylor-swatches':
+        response.push(new BrandSizes (138,138,{}, 'Center'))
+        break;
     }
     console.log(response)
     return response;
@@ -283,6 +289,8 @@ class App extends Component {
               <option value="artistic">Artistic</option>
               <option value="artistic-angels">Artistic Angels</option>
               <option value="artistic-swatches">Artistic Swatches</option>
+              <option value="morgan-taylor">MT Bottle</option>
+              <option value="morgan-taylor-swatches">MT Swatch</option>
               <option value="rcm">RCM</option>
               <option value="entity">Entity</option>
               <option value="entity-swatch">Entity Swatch</option>
