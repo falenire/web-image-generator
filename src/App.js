@@ -17,11 +17,11 @@ const colorProfilePath = `${rootPath}${packedPath}/unpackedDir/colorProfile/sRGB
 console.log('isPacked:' ,main.isPackaged)
 
 class BrandSizes {
-  constructor(width, height, {top, right, bottom, left}, gravity, rotate) {
+  constructor(width, height, {top, right, bottom, left}, gravity, overflow) {
     this.width = width || 0;
     this.height = height || 0;
     this.gravity = gravity;
-    this.rotate = rotate;
+    this.overflow = overflow;
     this.paddingTop = top || 0;
     this.paddingRight = right || 0;
     this.paddingBottom = bottom || 0;
@@ -66,6 +66,9 @@ class App extends Component {
       case 'gelish-swatch':
         response.push(new BrandSizes (192,192,{top:5,right:5,bottom:5,left:5}, 'Center'))
         break;
+      case 'getgelished':
+        response.push(new BrandSizes (507,507,{top:5,right:5,bottom:5,left:5}, 'Center'))
+        break;
       case 'gelish-dip-swatch':
         response.push(new BrandSizes (192,180,{top:17,right:17,bottom:5,left:17}, 'North'))
         break;
@@ -88,6 +91,11 @@ class App extends Component {
       case 'artistic':
         response.push(new BrandSizes (525,525,{top:40,right:40,bottom:40,left:40}, 'Center'))
         response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'Center'))
+        break;
+      case 'artistic-swatches':
+        response.push(new BrandSizes (1050,525,{}, 'Center', 'width'))
+        response.push(new BrandSizes (126,126,{}, 'Center', 'width'))
+        response.push(new BrandSizes (80,80,{}, 'Center', 'width'))
         break;
       case 'artistic-angels':
         response.push(new BrandSizes (400,400,{}, 'NorthWest'))
@@ -178,7 +186,7 @@ class App extends Component {
   prepThumbnailFile(file, tempFile, imageSpecs, sourceSize) {
     return new Promise((resolve, reject)=>{
       // Start with Brand Specs
-      let {width, height, gravity, paddingTop, paddingRight, paddingLeft, paddingBottom} = imageSpecs;
+      let {width, height, gravity, paddingTop, paddingRight, paddingLeft, paddingBottom, overflow} = imageSpecs;
       const destFolder = `${this.state.folders.destination}/${width}`;
       const destName = destFolder+'/'+file
       
@@ -189,26 +197,15 @@ class App extends Component {
       let resizeWidth = sourceSize.width;
       let resizeHeight = sourceSize.height;
 
-      if(sourceSize.width > constrainWidth) {
+      if(overflow !== 'width' && sourceSize.width > constrainWidth) {
         resizeWidth = constrainWidth
         resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
       }
 
-      if(resizeHeight > constrainHeight) {
+      if(overflow !== 'height' && resizeHeight > constrainHeight) {
         resizeHeight = constrainHeight
         resizeWidth = (resizeHeight*(resizeWidth))/(resizeHeight)
       }
-
-      // if(constrainWidth > constrainHeight) { 
-      // // if(sourceSize.width > sourceSize.height) { 
-      //   // Landscape
-      //   resizeHeight = constrainHeight
-      //   resizeWidth = (resizeHeight*(sourceSize.width))/(sourceSize.height)
-      // } else { 
-      //   // Portrait
-      //   resizeWidth = constrainWidth
-      //   resizeHeight = (resizeWidth*(sourceSize.height))/(sourceSize.width)
-      // }
 
       const gmTempFile = gm(tempFile, gpath);
       gmTempFile.background('white')
@@ -281,9 +278,11 @@ class App extends Component {
             <select id="brands" ref={this.brands}>
               <option value="gelish">Gelish</option>
               <option value="gelish-swatch">Gelish Swatches</option>
+              <option value="getgelished">Get Gelished</option>
               <option value="gelish-dip-swatch">Gelish Dip Swatches</option>
               <option value="artistic">Artistic</option>
               <option value="artistic-angels">Artistic Angels</option>
+              <option value="artistic-swatches">Artistic Swatches</option>
               <option value="rcm">RCM</option>
               <option value="entity">Entity</option>
               <option value="entity-swatch">Entity Swatch</option>
