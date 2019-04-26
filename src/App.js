@@ -66,6 +66,12 @@ class App extends Component {
       case 'gelish-swatch':
         response.push(new BrandSizes (192,192,{top:5,right:5,bottom:5,left:5}, 'Center'))
         break;
+      case 'gelish-dip-collection-page':
+        response.push(new BrandSizes (290,267,{top:30,right:20,bottom:15,left:20}, 'North'))
+        break;
+      case 'gelish-two-of-a-kind':
+        response.push(new BrandSizes (317,492,{top:24,right:5,bottom:102,left:5}, 'North'))
+        break;
       case 'getgelished':
         response.push(new BrandSizes (507,507,{top:5,right:5,bottom:5,left:5}, 'Center'))
         break;
@@ -102,10 +108,13 @@ class App extends Component {
         response.push(new BrandSizes (250,250,{}, 'NorthWest'))
         break;
       case 'morgan-taylor':
-        response.push(new BrandSizes (138,227,{top:12,right:16,bottom:8,left:16}, 'North'))
+        response.push(new BrandSizes (138,277,{top:12,right:16,bottom:8,left:16}, 'North'))
         break;
       case 'morgan-taylor-swatches':
         response.push(new BrandSizes (138,138,{}, 'Center'))
+        break;
+      case 'morgan-taylor-4-pack':
+        response.push(new BrandSizes (227,207,{top:5,right:10,bottom:5,left:10}, 'Center'))
         break;
     }
     console.log(response)
@@ -284,13 +293,16 @@ class App extends Component {
             <select id="brands" ref={this.brands}>
               <option value="gelish">Gelish</option>
               <option value="gelish-swatch">Gelish Swatches</option>
-              <option value="getgelished">Get Gelished</option>
+              <option value="gelish-dip-collection-page">Gelish Dip Jar In Collection Page</option>
+              <option value="gelish-two-of-a-kind">Gelish Two of A Kind</option>
               <option value="gelish-dip-swatch">Gelish Dip Swatches</option>
+              <option value="getgelished">Get Gelished</option>
               <option value="artistic">Artistic</option>
               <option value="artistic-angels">Artistic Angels</option>
               <option value="artistic-swatches">Artistic Swatches</option>
               <option value="morgan-taylor">MT Bottle</option>
               <option value="morgan-taylor-swatches">MT Swatch</option>
+              <option value="morgan-taylor-4-pack">MT 4 Pack</option>
               <option value="rcm">RCM</option>
               <option value="entity">Entity</option>
               <option value="entity-swatch">Entity Swatch</option>
