@@ -20,10 +20,10 @@ const showDevTools = (window) => {
  * Windows
  */
 app.on("ready", () => {
-  globalShortcut.register("CommandOrControl+D+T", ()=>{
+  globalShortcut.register("CommandOrControl+Shift+Alt+T", ()=>{
     showDevTools(mainWindow)
   })
-  console.log(globalShortcut.isRegistered("CommandOrControl+D+T"))
+  console.log(globalShortcut.isRegistered("CommandOrControl+Shift+Alt+T"))
   mainWindow = new BrowserWindow(windowSize)
   const startUrl = process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl)
