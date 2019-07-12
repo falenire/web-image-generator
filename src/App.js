@@ -81,6 +81,9 @@ class App extends Component {
       case 'rcm':
         response.push(new BrandSizes (500,500,{top:20,right:20,bottom:20,left:20}, 'Center'))
         break;
+      case 'rcm-swatch':
+        response.push(new BrandSizes (300,300,{top:36,right:36,bottom:36,left:36}, 'Center'))
+        break;
       case 'entity':
         response.push(new BrandSizes (108,108,{top:3,right:3,bottom:3,left:3}, 'Center'))
         response.push(new BrandSizes (554,554,{top:20,right:20,bottom:20,left:20}, 'Center'))
@@ -304,6 +307,7 @@ class App extends Component {
               <option value="morgan-taylor-swatches">MT Swatch</option>
               <option value="morgan-taylor-4-pack">MT 4 Pack</option>
               <option value="rcm">RCM</option>
+              <option value="rcm-swatch">RCM Swatches</option>
               <option value="entity">Entity</option>
               <option value="entity-swatch">Entity Swatch</option>
               <option value="entity-files">Entity Files</option>
