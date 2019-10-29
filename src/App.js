@@ -75,6 +75,9 @@ class App extends Component {
       case 'getgelished':
         response.push(new BrandSizes (507,507,{top:5,right:5,bottom:5,left:5}, 'Center'))
         break;
+      case 'getgelished-bottle':
+        response.push(new BrandSizes (200,200,{top:5,right:5,bottom:5,left:5}, 'Center'))
+        break;
       case 'gelish-dip-swatch':
         response.push(new BrandSizes (192,180,{top:17,right:17,bottom:5,left:17}, 'North'))
         break;
@@ -300,6 +303,7 @@ class App extends Component {
               <option value="gelish-two-of-a-kind">Gelish Two of A Kind</option>
               <option value="gelish-dip-swatch">Gelish Dip Swatches</option>
               <option value="getgelished">Get Gelished</option>
+              <option value="getgelished-bottle">Get Gelished Bottle</option>
               <option value="artistic">Artistic</option>
               <option value="artistic-angels">Artistic Angels</option>
               <option value="artistic-swatches">Artistic Swatches</option>
