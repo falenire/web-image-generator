@@ -105,7 +105,7 @@ class App extends Component {
         break;
       case 'artistic':
         response.push(new BrandSizes (525,525,{top:40,right:40,bottom:40,left:40}, 'Center'))
-        response.push(new BrandSizes (259,259,{top:40,right:40,bottom:40,left:40}, 'Center'))
+        response.push(new BrandSizes (259,259,{top:20,right:20,bottom:20,left:20}, 'Center'))
         break;
       case 'artistic-swatches':
         response.push(new BrandSizes (1050,525,{}, 'Center', 'width'))
